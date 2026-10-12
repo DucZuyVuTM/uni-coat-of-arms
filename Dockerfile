@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cp /app/target/x86_64-unknown-linux-musl/release/uni-coat-of-arms /app/uni-coat-of-arms
 
 # Download picture
-ADD https://www.mirea.ru/upload/medialibrary/80f/MIREA_Gerb_Colour.png \
+ADD --chmod=644 https://www.mirea.ru/upload/medialibrary/80f/MIREA_Gerb_Colour.png \
     /app/static/MIREA_Gerb_Colour.png
 
 # --------------------------- <Runtime_Stage> ---------------------------
@@ -42,7 +42,7 @@ COPY --from=builder /app/uni-coat-of-arms /app
 COPY --from=builder /app/static /static
 
 # Default env
-ENV DATABASE_URL="postgres://user:password@db:5432/mydb"
+ENV DATABASE_URL="postgres://user:password@postgres:5432/db"
 
 # Declare volume for persistent data
 VOLUME ["/data"]
