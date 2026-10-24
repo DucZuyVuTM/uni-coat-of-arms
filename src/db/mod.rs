@@ -9,7 +9,9 @@ pub async fn init_db(pool: &PgPool) -> anyhow::Result<()> {
         r#"
         CREATE TABLE IF NOT EXISTS items (
             id SERIAL PRIMARY KEY,
-            name TEXT NOT NULL
+            name TEXT NOT NULL,
+            description TEXT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         "#,
     )
@@ -23,6 +25,21 @@ pub async fn init_db(pool: &PgPool) -> anyhow::Result<()> {
             id SERIAL PRIMARY KEY,
             username TEXT NOT NULL UNIQUE,
             email TEXT NOT NULL UNIQUE
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    // Table Categories
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS categories (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL UNIQUE,
+            description TEXT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         "#,
     )
