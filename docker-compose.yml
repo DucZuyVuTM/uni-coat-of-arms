@@ -1,0 +1,80 @@
+services:
+  # 1. Rust App
+  app:
+    build: .
+    container_name: rust_app
+    ports:
+      - "8000:8080"
+    environment:
+      - DATABASE_URL=postgres://user:password@postgres:5432/db
+      - RUST_LOG=info
+    depends_on:
+      - postgres
+    networks:
+      - monitoring_net
+
+  # 2. PostgreSQL Database
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - monitoring_net
+
+  # 3. Adminer (Interface for Database Management)
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - monitoring_net
+
+  # 4. Prometheus (Metrics Collector)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring_net
+
+  # 5. Grafana (Data Visualization)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring_net
+
+# Volume initialization for storing persistent data
+volumes:
+  postgres_data:
+  prometheus_data:
+
+# Network initialization for communication between containers
+networks:
+  monitoring_net:
+    driver: bridge

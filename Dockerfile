@@ -42,7 +42,7 @@ COPY --from=builder /app/uni-coat-of-arms /app
 COPY --from=builder /app/static /static
 
 # Default env
-ENV DATABASE_URL="postgres://user:password@postgres:5432/db"
+# ENV DATABASE_URL="postgres://user:password@postgres:5432/db"
 
 # Declare volume for persistent data
 VOLUME ["/data"]
