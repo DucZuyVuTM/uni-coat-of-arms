@@ -69,7 +69,7 @@ services:
     networks:
       - monitoring_net
 
-  # Graylog Stack - MongoDB, ElasticSearch
+  # 6. --- Graylog Stack: MongoDB, ElasticSearch ---
   mongodb:
     image: mongo:6.0
     container_name: graylog_mongo
@@ -108,6 +108,48 @@ services:
       - "12201:12201/udp" # Port for GELF UDP logs
     networks:
       - monitoring_net
+  # ------------------------------------------------
+
+  # 7. --- Zabbix Stack: DB, Server, Web ---
+  zabbix-db:
+    image: postgres:16
+    container_name: zabbix_db
+    environment:
+      - POSTGRES_USER=zabbix
+      - POSTGRES_PASSWORD=zabbix_pwd
+      - POSTGRES_DB=zabbix
+    networks:
+      - monitoring_net
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-latest
+    container_name: zabbix_server
+    environment:
+      - DB_SERVER_HOST=zabbix-db
+      - POSTGRES_USER=zabbix
+      - POSTGRES_PASSWORD=zabbix_pwd
+      - POSTGRES_DB=zabbix
+    depends_on:
+      - zabbix-db
+    networks:
+      - monitoring_net
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-latest
+    container_name: zabbix_web
+    environment:
+      - ZBX_SERVER_HOST=zabbix-server
+      - DB_SERVER_HOST=zabbix-db
+      - POSTGRES_USER=zabbix
+      - POSTGRES_PASSWORD=zabbix_pwd
+      - POSTGRES_DB=zabbix
+    ports:
+      - "8081:8080" # Access into http://localhost:8081
+    depends_on:
+      - zabbix-server
+    networks:
+      - monitoring_net
+  # ----------------------------------------
 
 # Volume initialization for storing persistent data
 volumes:
