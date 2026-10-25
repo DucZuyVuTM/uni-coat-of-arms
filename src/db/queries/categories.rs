@@ -10,7 +10,7 @@ pub async fn insert_category(
 ) -> Result<Category, sqlx::Error> {
     sqlx::query_as::<_, Category>(
         r#"
-        INSERT INTO items (name, description)
+        INSERT INTO categories (name, description)
         VALUES ($1, $2)
         RETURNING id, name, description, created_at
         "#,
@@ -21,12 +21,12 @@ pub async fn insert_category(
     .await
 }
 
-/// READ: List all items
+/// READ: List all categories
 pub async fn fetch_all_categories(pool: &PgPool) -> Result<Vec<Category>, sqlx::Error> {
     sqlx::query_as::<_, Category>(
         r#"
         SELECT id, name, description, created_at
-        FROM items
+        FROM categories
         ORDER BY id
         "#,
     )
@@ -34,7 +34,7 @@ pub async fn fetch_all_categories(pool: &PgPool) -> Result<Vec<Category>, sqlx::
     .await
 }
 
-/// READ: Get item by id
+/// READ: Get category by id
 pub async fn fetch_category_by_id(
     pool: &PgPool,
     id: i32,
@@ -42,7 +42,7 @@ pub async fn fetch_category_by_id(
     sqlx::query_as::<_, Category>(
         r#"
         SELECT id, name, description, created_at
-        FROM items
+        FROM categories
         WHERE id = $1
         "#,
     )
