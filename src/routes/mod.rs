@@ -1,3 +1,4 @@
+pub mod categories;
 pub mod items;
 pub mod users;
 
@@ -10,6 +11,7 @@ use crate::state::AppState;
 /// Root router that merges all child routers
 pub fn create_router(state: Arc<AppState>) -> Router {
     Router::new()
+        .merge(categories::router())
         .merge(items::router())
         .merge(users::router())
         .nest_service("/mirea_gerb", ServeDir::new("static"))

@@ -10,7 +10,7 @@ use crate::state::AppState;
 /// Router for endpoint group /items
 pub fn router() -> Router<Arc<AppState>> {
     Router::new()
-        .route("/items", post(handlers::add_item))
+        .route("/items", post(handlers::create_item))
         .route("/items", get(handlers::list_items))
         .route("/items/{id}", get(handlers::get_item))
 }
