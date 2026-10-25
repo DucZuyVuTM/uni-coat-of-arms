@@ -69,10 +69,52 @@ services:
     networks:
       - monitoring_net
 
+  # Graylog Stack - MongoDB, ElasticSearch
+  mongodb:
+    image: mongo:6.0
+    container_name: graylog_mongo
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - monitoring_net
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+    container_name: graylog_es
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m # Set RAM limit
+      - xpack.security.enabled=false
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - monitoring_net
+
+  graylog:
+    image: graylog/graylog:5.1
+    container_name: graylog
+    depends_on:
+      - mongodb
+      - elasticsearch
+    environment:
+      # Default hashed admin password is "admin"
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+      - GRAYLOG_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - GRAYLOG_MONGODB_URI=mongodb://mongodb:27017/graylog
+    ports:
+      - "9000:9000"       # Web interface
+      - "12201:12201/udp" # Port for GELF UDP logs
+    networks:
+      - monitoring_net
+
 # Volume initialization for storing persistent data
 volumes:
   postgres_data:
   prometheus_data:
+  mongo_data:
+  es_data:
 
 # Network initialization for communication between containers
 networks:
