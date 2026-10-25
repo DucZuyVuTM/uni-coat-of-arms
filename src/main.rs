@@ -13,7 +13,7 @@ use crate::state::AppState;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // --------------------- <GrayLog> ---------------------
+    // --------------------------- <GrayLog> ---------------------------
 
     // Initialize GELF Logger and Spawn task
     let graylog_addr = "graylog:12201";
@@ -28,10 +28,10 @@ async fn main() -> anyhow::Result<()> {
     // Send first log
     tracing::info!("Rust App is on and is sending logs to Graylog!");
 
-    // --------------------- </GrayLog> ---------------------
+    // --------------------------- </GrayLog> ---------------------------
 
 
-    // --------------------- <DBMS> ---------------------
+    // --------------------------- <DBMS> ---------------------------
 
     // Get URL DBMS from env
     let db_url = std::env::var("DATABASE_URL")
@@ -49,10 +49,10 @@ async fn main() -> anyhow::Result<()> {
     // Create state and put it into Arc
     let state = Arc::new(AppState { db: pool });
 
-    // --------------------- </DBMS> ---------------------
+    // --------------------------- </DBMS> ---------------------------
 
 
-    // --------------------- <App> ---------------------
+    // --------------------------- <App> ---------------------------
 
     // Create router
     let app = routes::create_router(state);
@@ -62,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
     println!("Сборка и запуск произведены. Автор: Ву Дык Зуй");
     axum::serve(listener, app).await?;
 
-    // --------------------- </App> ---------------------
+    // --------------------------- </App> ---------------------------
 
     Ok(())
 }

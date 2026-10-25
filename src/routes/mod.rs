@@ -1,5 +1,6 @@
 pub mod categories;
 pub mod items;
+pub mod logs;
 pub mod users;
 
 use axum::{routing::get, Router};
@@ -16,6 +17,7 @@ pub fn create_router(state: Arc<AppState>) -> Router {
     Router::new()
         .merge(categories::router())
         .merge(items::router())
+        .merge(logs::router())
         .merge(users::router())
         .nest_service("/mirea_gerb", ServeDir::new("static"))
         .route("/metrics", get(|| async move { metric_handle.render() }))
