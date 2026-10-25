@@ -15,10 +15,10 @@ pub fn create_router(state: Arc<AppState>) -> Router {
     let (prometheus_layer, metric_handle) = PrometheusMetricLayer::pair();
 
     Router::new()
-        .merge(categories::router())
-        .merge(items::router())
-        .merge(logs::router())
-        .merge(users::router())
+        .nest("/categories", categories::router())
+        .nest("/items", items::router())
+        .nest("/logs", logs::router())
+        .nest("/users", users::router())
         .nest_service("/mirea_gerb", ServeDir::new("static"))
         .route("/metrics", get(|| async move { metric_handle.render() }))
         .layer(prometheus_layer)

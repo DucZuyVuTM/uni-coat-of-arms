@@ -60,3 +60,43 @@ pub async fn get_user(
         None => Err(StatusCode::NOT_FOUND),
     }
 }
+
+/// PUT /users/{id} - Update an existing user
+pub async fn update_user(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i32>,
+    Json(payload): Json<CreateUser>,
+) -> Result<Json<User>, StatusCode> {
+    let user = queries::update_user(
+        &state.db,
+        id,
+        &payload.username,
+        &payload.email,
+    )
+    .await
+    .map_err(|e| {
+        eprintln!("DB error: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok(Json(user))
+}
+
+/// DELETE /users/{id} - Delete a user
+pub async fn delete_user(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i32>,
+) -> Result<StatusCode, StatusCode> {
+    let rows_affected = queries::delete_user(&state.db, id)
+        .await
+        .map_err(|e| {
+            eprintln!("DB error: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    if rows_affected > 0 {
+        Ok(StatusCode::NO_CONTENT)  // Return 204 if success
+    } else {
+        Err(StatusCode::NOT_FOUND)  // Return 404 if ID not found
+    }
+}

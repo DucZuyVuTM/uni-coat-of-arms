@@ -60,3 +60,43 @@ pub async fn get_category(
         None => Err(StatusCode::NOT_FOUND),
     }
 }
+
+/// PUT /categories/{id} - Update an existing category
+pub async fn update_category(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i32>,
+    Json(payload): Json<CreateCategory>,
+) -> Result<Json<Category>, StatusCode> {
+    let category = queries::update_category(
+        &state.db,
+        id,
+        &payload.name,
+        payload.description.as_deref(),
+    )
+    .await
+    .map_err(|e| {
+        eprintln!("DB error: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok(Json(category))
+}
+
+/// DELETE /categories/{id} - Delete a category
+pub async fn delete_category(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i32>,
+) -> Result<StatusCode, StatusCode> {
+    let rows_affected = queries::delete_category(&state.db, id)
+        .await
+        .map_err(|e| {
+            eprintln!("DB error: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    if rows_affected > 0 {
+        Ok(StatusCode::NO_CONTENT)  // Return 204 if success
+    } else {
+        Err(StatusCode::NOT_FOUND)  // Return 404 if ID not found
+    }
+}

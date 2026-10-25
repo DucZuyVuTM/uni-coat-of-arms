@@ -10,5 +10,5 @@ use crate::state::AppState;
 /// Router for logs
 pub fn router() -> Router<Arc<AppState>> {
     Router::new()
-        .route("/logs/export", get(handlers::export_logs_csv))
+        .route("/export", get(handlers::export_logs_csv))
 }

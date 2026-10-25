@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, post},
+    routing::{delete, get, post, put},
     Router,
 };
 use std::sync::Arc;
@@ -10,7 +10,9 @@ use crate::state::AppState;
 /// Router for endpoint group /users
 pub fn router() -> Router<Arc<AppState>> {
     Router::new()
-        .route("/users", post(handlers::create_user))
-        .route("/users", get(handlers::list_users))
-        .route("/users/{id}", get(handlers::get_user))
+        .route("/", post(handlers::create_user))
+        .route("/", get(handlers::list_users))
+        .route("/:id", get(handlers::get_user))
+        .route("/:id", put(handlers::update_user))
+        .route("/:id", delete(handlers::delete_user))
 }

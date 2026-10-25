@@ -4,6 +4,7 @@ use axum::{
 };
 use reqwest::Client;
 
+/// GET /logs/export - export logs to CSV
 pub async fn export_logs_csv() -> Result<impl IntoResponse, StatusCode> {
     let client = Client::new();
     
