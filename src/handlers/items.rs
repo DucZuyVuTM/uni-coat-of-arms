@@ -10,16 +10,21 @@ use crate::models::{CreateItem, Item};
 use crate::state::AppState;
 
 /// POST /items - Add new item
-pub async fn add_item(
+pub async fn create_item(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateItem>,
 ) -> Result<Json<Item>, StatusCode> {
-    let item = queries::insert_item(&state.db, &payload.name)
-        .await
-        .map_err(|e| {
-            eprintln!("DB error: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    let item = queries::insert_item(
+        &state.db,
+        payload.user_id,
+        &payload.name,
+        payload.description.as_deref(),
+    )
+    .await
+    .map_err(|e| {
+        eprintln!("DB error: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     Ok(Json(item))
 }
@@ -51,7 +56,7 @@ pub async fn get_item(
         })?;
 
     match item {
-        Some(u) => Ok(Json(u)),
+        Some(i) => Ok(Json(i)),
         None => Err(StatusCode::NOT_FOUND),
     }
 }

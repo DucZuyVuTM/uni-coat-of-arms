@@ -14,13 +14,17 @@ pub async fn create_user(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateUser>,
 ) -> Result<Json<User>, StatusCode> {
-    let user = queries::insert_user(&state.db, &payload.username, &payload.email)
-        .await
-        .map_err(|e| {
-            eprintln!("DB error: {}", e);
-            // If username/email already exists (unique constraint) → 409 Conflict
-            StatusCode::CONFLICT
-        })?;
+    let user = queries::insert_user(
+        &state.db,
+        &payload.username,
+        &payload.email
+    )
+    .await
+    .map_err(|e| {
+        eprintln!("DB error: {}", e);
+        // If username/email already exists (unique constraint) → 409 Conflict
+        StatusCode::CONFLICT
+    })?;
 
     Ok(Json(user))
 }
