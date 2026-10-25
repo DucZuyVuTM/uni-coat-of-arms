@@ -4,6 +4,20 @@ use sqlx::PgPool;
 
 /// Create database if not exists
 pub async fn init_db(pool: &PgPool) -> anyhow::Result<()> {
+    // Table Users
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username TEXT NOT NULL UNIQUE,
+            email TEXT NOT NULL UNIQUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
     // Table Categories
     sqlx::query(
         r#"
@@ -26,20 +40,6 @@ pub async fn init_db(pool: &PgPool) -> anyhow::Result<()> {
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
             name TEXT NOT NULL,
             description TEXT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-        "#,
-    )
-    .execute(pool)
-    .await?;
-
-    // Table Users
-    sqlx::query(
-        r#"
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username TEXT NOT NULL UNIQUE,
-            email TEXT NOT NULL UNIQUE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         "#,
