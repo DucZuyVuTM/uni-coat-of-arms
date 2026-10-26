@@ -110,7 +110,7 @@ services:
       - monitoring_net
   # ------------------------------------------------
 
-  # 7. --- Zabbix Stack: DB, Server, Web ---
+  # 7. --- Zabbix Stack: DB, Server, Web, Agent ---
   zabbix-db:
     image: postgres:16
     container_name: zabbix_db
@@ -149,7 +149,16 @@ services:
       - zabbix-server
     networks:
       - monitoring_net
-  # ----------------------------------------
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:alpine-latest
+    container_name: zabbix_agent
+    environment:
+      - ZBX_SERVER_HOST=zabbix-server
+      - ZBX_HOSTNAME=zabbix-agent
+    networks:
+      - monitoring_net
+  # -----------------------------------------------
 
 # Volume initialization for storing persistent data
 volumes:
